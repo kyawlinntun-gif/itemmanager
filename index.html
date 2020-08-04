@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- fontawesome css -->
+    <link rel="stylesheet" href="css/all.min.css">
+
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css">
+    <title>Item manager</title>
+</head>
+<body class="pl-5 pt-5">
+    
+    <div class="container">
+        <!-- <div class="item-delete"></div> -->
+        <h1>Item manager <a href="create.html" class="btn btn-primary">Create Item</a></h1>
+        <div class="item-manager">
+            <ul id="item" class="list-group">
+            </ul>
+        </div>
+    </div>
+
+    <!-- jquery js -->
+    <script src="js/jquery.js"></script> 
+
+    <!-- bootstrap js -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+    <!-- jquery redirect -->
+    <script src="js/jquery.redirect.js"></script>
+
+    <script>
+        $(function(){
+            $.ajax({
+                url: 'http://itemapi.test/api/items'
+            }).done(function(items){
+                var output = '';
+                $.each(items, function(key, item){
+                    $.each(item, function(key, item){
+                        output += `
+                        <li class="list-group-item"> Text: ${item.text}, Body: ${item.body} <span class="btn btn-primary" id="item-edit" data-id="${item.id}" >Edit</span> <span class="btn btn-primary" id="item-delete" data-id="${item.id}">Delete</span> </li>
+                        `;
+                    });
+                });
+                $("#item").html(output);
+            });
+
+            $(".item-manager").on('click', '#item-edit', function(){
+                let id = $(this).data('id');
+                edit(id);
+            }); 
+            function edit(id)
+            {
+                $.ajax({
+                    url: 'http://itemapi.test/api/items/edit/' + id 
+                }).done(function(item){
+                    // $.redirect('',
+                    //     {
+                    //         user_name: "khan",
+                    //         city : "Meerut",
+                    //         country : "country"
+                    //     });
+                    $.each(item, function(key, item){
+                        // var data = {};
+                        // data.id = item['id'];
+                        // data.text = item['text'];
+                        // data.body = item['body'];
+                        // let oneitem = {id: id, text: text, body: body};
+                        localStorage.setItem("x", JSON.stringify(item));
+                        window.location.href='edit.html';
+                    });
+                });
+            }
+
+            $(".item-manager").on('click', '#item-delete', function(){
+                let id = $(this).data('id');
+                del(id);
+            }); 
+            function del(id)
+            {
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://itemapi.test/api/items/' + id,
+                    data: {_method: 'DELETE'} 
+                }).done(function(data){
+                    window.location.href="index.html";
+                });
+            }
+        });
+    </script>
+</body>
+</html>

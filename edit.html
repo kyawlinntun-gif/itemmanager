@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- fontawesome css -->
+    <link rel="stylesheet" href="css/all.min.css">
+
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- style -->
+    <link rel="stylesheet" href="css/style.css">
+    <title>Edit Item</title>
+</head>
+<body class="pl-5 pt-5">
+
+    <div class="edit-item">
+        <div class="container">
+            <h1>Edit Item <a href="index.html" class="btn btn-primary">Back To Index Page</a></h1>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="text">Text</label>
+                    <input type="text" id="text" class="form-control">
+                    <div class="text"></div>
+                </div>
+                <div class="form-group">
+                    <label for="body">Body</label>
+                    <textarea id="body" class="form-control"></textarea>
+                    <div class="body"></div>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <!-- jquery js -->
+    <script src="js/jquery.js"></script> 
+
+    <!-- bootstrap js -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+
+    <!-- jquery redirect -->
+    <script src="js/jquery.redirect.js"></script>
+
+    <script>
+        $(function(){
+            let x = JSON.parse(localStorage.getItem("x")); //getter
+            // console.log(x);
+            let id = x['id'];
+            $("#text").val(x['text']);
+            $("#body").val(x['body']);
+
+            $("#edit-form").on('submit', function(e){
+                e.preventDefault();
+                let text = $("#text").val();
+                let body = $("#body").val();
+                // console.log(id, text, body);
+                $.ajax({
+                    method: "POST",
+                    url: "http://itemapi.test/api/items/" + id,
+                    data: {_method: "PUT", text: text, body: body}
+                }).done(function(data){
+                    $.each(data, function(key, data){
+                        if(data['errors'])
+                        {
+                            if(data['errors']['text'])
+                            {
+                                $(".text").html('<div class="alert alert-danger">' + data['errors']['text'] + '</div>');
+                            }
+                            else
+                            {
+                                $(".text").html('');
+                            }
+                            if(data['errors']['body'])
+                            {
+                                $(".body").html('<div class="alert alert-danger"> ' + data['errors']['body']  + ' </div>');
+                            }
+                            else
+                            {
+                                $('.body').html('');
+                            }
+                        }
+                        if(data['item'])
+                        {
+                            // $("#text").val(data['item']['text']);
+                            // $("#body").val(data['item']['body']);
+                            window.location.href = 'index.html';
+                        }
+                        // console.log(data['errors']);
+                        // console.log(data['item']);
+                        // console.log(data['errors']['text']);
+                    });
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
